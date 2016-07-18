@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% block javascripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Get the div that holds the prototype attribute
+            $collectionHolder = $('div.tags');
+
+            // Get the data-prototype
+            var prototype = $collectionHolder.data('prototype');
+            
+            // Get the div with id = category_tags
+            $tagsField = $('div#category_tags');
+            
+            // Display the form in the page in a <div>
+            var $newtagsField = $tagsField.append(prototype);
+            $("#category_tags___name___tagname").select2(
+                    {placeholder: "Select tags"}
+            );
+        });
+    </script>
+{% endblock %}
+{% block body %}    
+    {{ form_start(form) }}
+    {{ form_row(form.categoryname) }}
+    <br>
+    <div class="tags" data-prototype="{{ form_row(form.tags.vars.prototype.tagname, {'attr':{'style':'width:300px'}})|e('html_attr') }}">
+        {{ form_widget(form.tags) }}
+    </div>
+    <br>
+    {{ form_row(form.save) }}
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
