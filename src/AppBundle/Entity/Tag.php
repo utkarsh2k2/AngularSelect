@@ -10,14 +10,14 @@ use AppBundle\Entity\Category;
  * Tag
  *
  * @ORM\Table(name="tag")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\TagRepository.php")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TagRepository")
  */
 class Tag {
 
     /**
      * @var int
      *
-     * @ORM\Column(name="Id", type="integer")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -27,10 +27,10 @@ class Tag {
      * 
      * @var string
      *
-     * @ORM\Column(name="TagName", type="string")
+     * @ORM\Column(name="tagname", type="string")
      */
     protected $tagname;
-
+    
     /**
      * @ORM\ManyToMany(targetEntity="Category", mappedBy="tags")
      */
@@ -54,6 +54,19 @@ class Tag {
         return $this->id;
     }
 
+    /**
+     * Set id
+     *
+     * @param int $id
+     * @return Tag
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+    
     /**
      * Set tagname
      *

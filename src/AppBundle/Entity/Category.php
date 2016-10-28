@@ -10,14 +10,14 @@ use AppBundle\Entity\Tag;
  * Category
  *
  * @ORM\Table(name="category")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\CategoryRepository.php")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\CategoryRepository")
  */
 class Category {
 
     /**
      * @var int
      *
-     * @ORM\Column(name="Id", type="integer")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -32,7 +32,7 @@ class Category {
     protected $categoryname;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Tag", cascade={"persist"}, inversedBy="categories")
+     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="categories")
      */
     protected $tags;
 

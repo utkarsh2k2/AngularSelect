@@ -12,4 +12,16 @@ use Doctrine\ORM\EntityRepository;
  */
 class TagRepository extends EntityRepository
 {
+    public function getTagsByCategory($categoryId){
+        $querybuilder = $this->getEntityManager()->createQueryBuilder();
+        $querybuilder->select('t')
+                     ->from('AppBundle:Tag', 't')
+                     ->innerJoin('t.categories', 'c', 'WITH', 'c.id = :id')
+//                     ->where($querybuilder->expr()->eq('t.id', ':id'))
+                     ->setParameter('id', $categoryId)
+                     ->orderBy('t.id', 'ASC');
+
+        $tags = $querybuilder->getQuery()->getScalarResult();
+        return $tags;
+    }
 }

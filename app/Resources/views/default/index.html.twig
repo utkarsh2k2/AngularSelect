@@ -1,39 +1,96 @@
 {% extends 'base.html.twig' %}
 {% block javascripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.1.0/chosen.jquery.min.js"></script>
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
     <script>
         $(document).ready(function() {
             // Get the div that holds the prototype attribute
             $collectionHolder = $('div.tags');
-
             // Get the data-prototype
             var prototype = $collectionHolder.data('prototype');
-            
             // Get the div with id = category_tags
             $tagsField = $('div#category_tags');
-            
             // Display the form in the page in a <div>
             var $newtagsField = $tagsField.append(prototype);
-            $("#category_tags___name___tagname").select2(
-                    {placeholder: "Select tags"}
-            );
-        });
+            //apply chosen plugin to the tags field
+            $("#category_tags___name___tagname").chosen({
+                display_selected_options: false,
+                width: "22%",
+                placeholder_text_multiple: 'Select Tags',
+                no_results_text: "Oops, no tags found!"
+            });
+            
+         //apply logic to update the associated tags based on the selected category   
+         $("#category_categoryname").change(function(){
+             //get the category input field element
+             var cat_element = document.getElementById("category_categoryname");
+             //get the value(categoryId) of the newly selected category
+             var category_type = cat_element.options[cat_element.selectedIndex].value;
+             //make an AJAX call to the server to send the categoryId and retrieve the associated tags with it                                     
+             $.ajax({
+                type: "POST",
+                url: Routing.generate('homepage'),
+                contentType: 'application/x-www-form-urlencoded',
+                data: { cat_id : category_type},
+                success: function (result, status, xhr) {
+                   //get all the available tags(both selected and unselected)
+                   var tag_options = document.getElementById("category_categoryname").options;
+                   //deselect them all
+                   for(var i = 0; i < tag_options.length; i++){
+                        tag_options[i].selected = false;
+                      }
+                   //parse the retrieved data from the server
+                   var tags_arr = JSON.parse(result);
+                   //create an empty array
+                   var tags_val_arr = [];
+                   //store the retrieved tag ids in the array created above
+                   for(var i = 0; i < tags_arr.length; i++){
+                        tags_val_arr[i] = tags_arr[i].t_id;
+                      }
+                   //insert the tag ids as values in the tags multiple select field   
+                   $("#category_tags___name___tagname").val(tags_val_arr);
+                   //update the field using 'chosen:updated' event
+                   $("#category_tags___name___tagname").trigger("chosen:updated");
+                   
+                   //insert the newly selected category value in the category single select field(no need to update manually)
+                   $("#category_categoryname").val(category_type);
+                },
+                error: function(xhr, status, error) {
+                   alert(status);
+                   console.log(error);
+                   console.log(status);
+                }
+            });
+         });        
+    });        
     </script>
 {% endblock %}
 {% block body %}    
     {{ form_start(form) }}
-    {{ form_row(form.categoryname) }}
-    <br>
-    <div class="tags" data-prototype="{{ form_row(form.tags.vars.prototype.tagname, {'attr':{'style':'width:300px'}})|e('html_attr') }}">
-        {{ form_widget(form.tags) }}
-    </div>
-    <br>
-    {{ form_row(form.save) }}
+        {# Category single select field #}
+        {{ form_label(form.categoryname) }}
+        {{ form_widget(form.categoryname) }}
+        {{ form_errors(form.categoryname) }}
+
+        <br><br><br>
+
+        {# Tags multiple select field #}
+        {# Wrap the field inside a div element so that you can define the 'classname' and 'data-prototype' values #}
+        <div class="tags" data-prototype="{{ form_row(form.tags.vars.prototype.tagname, {'attr':{'style':'width:300px'}})|e }}">
+            {{ form_label(form.tags) }}
+            {{ form_widget(form.tags) }}
+            {{ form_errors(form.tags) }}
+        </div>
+
+        <br>
+
+        {# Submit button #}
+        {{ form_row(form.save) }}
     {{ form_end(form) }}
 {% endblock %}
 
 {% block stylesheets %}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.1.0/chosen.min.css">
 {% endblock %}

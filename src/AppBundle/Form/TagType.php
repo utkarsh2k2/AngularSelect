@@ -5,35 +5,34 @@ namespace AppBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
-class TagType extends AbstractType
-{
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-//        $builder->add('tagname');
-        $builder->add('tagname', ChoiceType::class, array(
-            'choices' => array(
-                'wifi' => 1,
-                'cable' => 2,
-                'television' => 3,
-                'geyser' => 4,
-                'fridge' => 5,
-                'sofa' => 6,
-                'lift' => 7,
-                'winston' => 8,
-                'west' => 9,
-            ),
-            'choices_as_values' => true,
+class TagType extends AbstractType {
+
+    protected $tag;
+
+    public function __construct(array $tag = array()) {
+        $this->tag = $tag;
+    }
+
+    public function buildForm(FormBuilderInterface $builder, array $options) {
+
+        $builder->add('tagname', EntityType::class, array(
+            'class' => 'AppBundle:Tag',
+            'query_builder' => function(EntityRepository $er) {
+        return $er->createQueryBuilder('t')
+                  ->orderBy('t.id', 'ASC');
+    },
+            'choice_label' => 'tagname',
             'expanded' => false,
             'multiple' => true,
-            'label' => 'Choose Tags',
-            'empty_value' => 'Choose Tags',
+            'label' => 'Tags',
+            'data' => $this->tag,
         ));
     }
 
-    public function configureOptions(OptionsResolver $resolver)
-    {
+    public function configureOptions(OptionsResolver $resolver) {
         $resolver->setDefaults(array(
             'data_class' => 'AppBundle\Entity\Tag',
         ));
